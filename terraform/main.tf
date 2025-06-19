@@ -96,6 +96,7 @@ resource "aws_lb_target_group" "tg" {
     unhealthy_threshold = 3
     interval = 30
   }
+  depends_on = [aws_lb_listener.listener]
 }
 
 resource "aws_lb_listener" "listener" {
