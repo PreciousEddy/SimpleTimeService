@@ -85,10 +85,16 @@ resource "aws_lb_target_group" "tg" {
   port     = 5000
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
+  target_type = "ip"
 
   health_check {
+    enabled = true
     path = "/"
+    protocol = "HTTP"
     port = "5000"
+    healthy_threshold = 3
+    unhealthy_threshold = 3
+    interval = 30
   }
 }
 
