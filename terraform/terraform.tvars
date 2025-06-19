@@ -1,0 +1,2 @@
+project_id    = "lfcs-462017"
+docker_image  = "docker.io/p3dmund/simpletimeservice:latest"
