@@ -1,4 +1,4 @@
-# 🚀 SimpleTimeService
+# SimpleTimeService
 
 A minimal Flask-based microservice that returns the current UTC timestamp and the client IP in JSON format.
 
