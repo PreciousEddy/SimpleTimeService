@@ -8,12 +8,6 @@ resource "google_cloud_run_service" "default" {
   location = var.region
 
   template {
-    metadata {
-      annotations = {
-        "run.googleapis.com/vpc-access-connector" = google_vpc_access_connector.connector.id
-        "run.googleapis.com/vpc-egress"           = "all-traffic"
-      }
-    }
     spec {
       containers {
         image = var.docker_image
@@ -38,25 +32,55 @@ resource "google_cloud_run_service_iam_member" "invoker" {
 }
 
 resource "google_api_gateway_api" "api" {
-  api_id = "simpletimeservice-api"
+  api_id       = "simpletimeservice-api"
   display_name = "Simple Time API"
 }
 
+# API Config without openapi.yaml file
 resource "google_api_gateway_api_config" "config" {
-  api      = google_api_gateway_api.api.id
+  api       = google_api_gateway_api.api.id
   config_id = "v1"
+
   openapi_documents {
     document {
-      path     = "${path.module}/openapi.yaml"
-      contents = file("${path.module}/openapi.yaml")
+      contents = <<EOT
+swagger: '2.0'
+info:
+  title: Simple Time Service API
+  description: Simple service to return current time and requester IP
+  version: 1.0.0
+host: simpletimeservice.api.gateway.dev
+x-google-endpoints:
+  - name: simpletimeservice.api.gateway.dev
+    allowCors: true
+paths:
+  /:
+    get:
+      operationId: getTime
+      responses:
+        '200':
+          description: OK
+      x-google-backend:
+        address: "${google_cloud_run_service.default.status[0].url}"
+      security: []
+EOT
     }
   }
 }
 
 resource "google_api_gateway_gateway" "gateway" {
-  name        = "simpletimeservice-gateway"
-  api_config  = google_api_gateway_api_config.config.id
-  location    = var.region
+  name       = "simpletimeservice-gateway"
+  api_config = google_api_gateway_api_config.config.id
+  location   = var.region
 }
+
+output "cloud_run_url" {
+  value = google_cloud_run_service.default.status[0].url
+}
+
+output "api_gateway_url" {
+  value = "https://${google_api_gateway_gateway.gateway.default_hostname}"
+}
+
 
 
