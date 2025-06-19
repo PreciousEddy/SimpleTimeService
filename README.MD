@@ -87,7 +87,7 @@ export AWS_DEFAULT_REGION=us-east-1
 
 Edit `terraform/backend.tf`:
 
-```hcl
+```
 terraform {
   backend "s3" {
     bucket         = "simpletime-tfstate"
@@ -148,7 +148,7 @@ Once deployed, Terraform will output the public ALB DNS.
 You can access the app at:
 
 ```
-http://<alb-dns-name>
+http://simpletimeservice-lb-915859264.us-east-1.elb.amazonaws.com/
 ```
 
 ---
